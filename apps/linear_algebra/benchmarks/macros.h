@@ -102,6 +102,25 @@ inline void set_math_flags() {
             << "\n";                                    \
     }
 
+#define FCGFLOPS(M, N) M * N * 1e-3 / elapsed
+#define CONCAT(x,y) x##y
+#define FCBenchmark(benchmark, in_size, out_size, type)              \
+    virtual void bench_fc_##out_size##x##in_size() override {    \
+        Vector x(random_vector(in_size));               \
+        Vector y(random_vector(out_size));              \
+        Matrix A(random_matrix(in_size, out_size));     \
+                                                        \
+        time_it(benchmark##_##out_size##x##in_size(A.raw_buffer(), x.raw_buffer(), y.raw_buffer(), y.raw_buffer()))               \
+                                                        \
+                std::cout                               \
+            << std::setw(8) << "halide_fc"                     \
+            << std::setw(15) << type      \
+            << std::setw(8) << std::to_string(out_size) << "x" << std::to_string(in_size)     \
+            << std::setw(20) << std::to_string(elapsed) \
+            << std::setw(20) << FCGFLOPS(in_size, out_size)          \
+            << "\n";                                    \
+    }
+
 #define L3GFLOPS(N) (3.0 + N) * N *N * 1e-3 / elapsed
 #define L3Benchmark(benchmark, type, code)              \
     virtual void bench_##benchmark(int N) override {    \

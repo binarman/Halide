@@ -148,3 +148,26 @@ add_halide_blas_library(
         TARGET halide_dgemm_transAB
         NAME dgemm
         GENERATOR_ARGS transpose_A=true transpose_B=true)
+
+
+macro(ADD_FC_LIBRARY IN_SIZE OUT_SIZE)
+    add_halide_blas_library(
+            TARGET halide_sfc_${OUT_SIZE}x${IN_SIZE}
+            NAME sfc
+            GENERATOR_ARGS in_size=${IN_SIZE} out_size=${OUT_SIZE})
+    add_halide_blas_library(
+            TARGET halide_dfc_${OUT_SIZE}x${IN_SIZE}
+            NAME dfc
+            GENERATOR_ARGS in_size=${IN_SIZE} out_size=${OUT_SIZE})
+endmacro()
+
+ADD_FC_LIBRARY(1024 1001)
+ADD_FC_LIBRARY(1280 1001)
+ADD_FC_LIBRARY(2048 1001)
+ADD_FC_LIBRARY(16 48)
+ADD_FC_LIBRARY(512 48)
+ADD_FC_LIBRARY(512 1152)
+ADD_FC_LIBRARY(384 1152)
+ADD_FC_LIBRARY(4000 4)
+
+

@@ -53,6 +53,15 @@ struct BenchmarksBase {
         return buff;
     }
 
+    Matrix random_matrix(int M, int N) {
+      Matrix buff(M, N);
+      Scalar *A = (Scalar *)buff.data();
+      for (int i = 0; i < M * N; ++i) {
+        A[i] = random_scalar();
+      }
+      return buff;
+    }
+
     BenchmarksBase(std::string n)
         : name(n) {
     }
@@ -82,6 +91,22 @@ struct BenchmarksBase {
             bench_gemm_transB(size);
         } else if (benchmark == "gemm_transAB") {
             bench_gemm_transAB(size);
+        } else if (benchmark == "fc_48x16") {
+            bench_fc_48x16();
+        } else if (benchmark == "fc_48x512") {
+            bench_fc_48x512();
+        } else if (benchmark == "fc_1001x1024") {
+            bench_fc_1001x1024();
+        } else if (benchmark == "fc_1001x1280") {
+            bench_fc_1001x1280();
+        } else if (benchmark == "fc_1001x2048") {
+            bench_fc_1001x2048();
+        } else if (benchmark == "fc_1152x384") {
+            bench_fc_1152x384();
+        } else if (benchmark == "fc_1152x512") {
+            bench_fc_1152x512();
+        } else if (benchmark == "fc_4x4000") {
+            bench_fc_4x4000();
         }
     }
 
@@ -97,6 +122,15 @@ struct BenchmarksBase {
     virtual void bench_gemm_transA(int N) = 0;
     virtual void bench_gemm_transB(int N) = 0;
     virtual void bench_gemm_transAB(int N) = 0;
+
+    virtual void bench_fc_1001x1024() = 0;
+    virtual void bench_fc_1001x1280() = 0;
+    virtual void bench_fc_1001x2048() = 0;
+    virtual void bench_fc_48x16() = 0;
+    virtual void bench_fc_48x512() = 0;
+    virtual void bench_fc_1152x512() = 0;
+    virtual void bench_fc_1152x384() = 0;
+    virtual void bench_fc_4x4000() = 0;
 };
 
 struct BenchmarksFloat : public BenchmarksBase<float> {
@@ -114,6 +148,15 @@ struct BenchmarksFloat : public BenchmarksBase<float> {
     L1Benchmark(asum, "s", halide_sasum(x.raw_buffer(), result.raw_buffer()));
 
     L2Benchmark(gemv_notrans, "s", halide_sgemv(false, alpha, A.raw_buffer(), x.raw_buffer(), beta, y.raw_buffer()));
+
+    FCBenchmark(halide_sfc, 16, 48, "s");
+    FCBenchmark(halide_sfc, 512, 48, "s");
+    FCBenchmark(halide_sfc, 4000, 4, "s");
+    FCBenchmark(halide_sfc, 1024, 1001, "s");
+    FCBenchmark(halide_sfc, 1280, 1001, "s");
+    FCBenchmark(halide_sfc, 2048, 1001, "s");
+    FCBenchmark(halide_sfc, 384, 1152, "s");
+    FCBenchmark(halide_sfc, 512, 1152, "s");
 
     L2Benchmark(gemv_trans, "s", halide_sgemv(true, alpha, A.raw_buffer(), x.raw_buffer(), beta, y.raw_buffer()));
 
@@ -143,6 +186,15 @@ struct BenchmarksDouble : public BenchmarksBase<double> {
     L1Benchmark(asum, "d", halide_dasum(x.raw_buffer(), result.raw_buffer()));
 
     L2Benchmark(gemv_notrans, "d", halide_dgemv(false, alpha, A.raw_buffer(), x.raw_buffer(), beta, y.raw_buffer()));
+
+    FCBenchmark(halide_dfc, 16, 48, "d");
+    FCBenchmark(halide_dfc, 512, 48, "d");
+    FCBenchmark(halide_dfc, 4000, 4, "d");
+    FCBenchmark(halide_dfc, 1024, 1001, "d");
+    FCBenchmark(halide_dfc, 1280, 1001, "d");
+    FCBenchmark(halide_dfc, 2048, 1001, "d");
+    FCBenchmark(halide_dfc, 384, 1152, "d");
+    FCBenchmark(halide_dfc, 512, 1152, "d");
 
     L2Benchmark(gemv_trans, "d", halide_dgemv(true, alpha, A.raw_buffer(), x.raw_buffer(), beta, y.raw_buffer()));
 

@@ -29,6 +29,31 @@
 #include "halide_sger_impl.h"
 #include "halide_sscal_impl.h"
 
+#include "halide_sfc_48x16.h"
+#include "halide_dfc_48x16.h"
+
+#include "halide_sfc_1001x1024.h"
+#include "halide_dfc_1001x1024.h"
+
+#include "halide_sfc_1001x1280.h"
+#include "halide_dfc_1001x1280.h"
+
+#include "halide_sfc_1001x2048.h"
+#include "halide_dfc_1001x2048.h"
+
+#include "halide_sfc_1152x512.h"
+#include "halide_dfc_1152x512.h"
+
+#include "halide_sfc_1152x384.h"
+#include "halide_dfc_1152x384.h"
+
+#include "halide_sfc_48x512.h"
+#include "halide_dfc_48x512.h"
+
+#include "halide_sfc_4x4000.h"
+#include "halide_dfc_4x4000.h"
+
+
 inline int halide_scopy(halide_buffer_t *x, halide_buffer_t *y) {
     return halide_scopy_impl(0, x, nullptr, y);
 }
