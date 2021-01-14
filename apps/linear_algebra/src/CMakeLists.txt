@@ -14,7 +14,9 @@ function(add_halide_blas_library)
     add_halide_library(${args_TARGET} FROM blas.generator
                        GENERATOR ${args_NAME}
                        FEATURES no_bounds_query ${args_FEATURES}
-                       PARAMS ${args_GENERATOR_ARGS})
+                       PARAMS ${args_GENERATOR_ARGS}
+                       STMT_HTML ${args_TARGET}.html
+                       TARGETS arm-64-android)
     target_link_libraries(halide_blas PUBLIC ${args_TARGET})
 endfunction()
 
