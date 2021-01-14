@@ -1,4 +1,4 @@
-Halide_DIR=../../install cmake -DCMAKE_BUILD_TYPE=Release ../
+Halide_DIR=../../install cmake -DCMAKE_BUILD_TYPE=Debug ../
 make -j8 halide_blas \
 linear_algebra/src/halide_scopy_impl.a \
 linear_algebra/src/halide_scopy_impl.runtime.a \
@@ -143,3 +143,6 @@ cd linear_algebra/benchmarks
 ../src/halide_sfc_4x4000.runtime.a \
 -ldl \
 -llog
+
+adb push halide_benchmarks /data/local/tmp/
+
