@@ -271,81 +271,88 @@ public:
   void generate() {
     assert(get_target().has_feature(Target::NoBoundsQuery));
 
-    const int vec_size = vectorize_ ? natural_vector_size(type_of<T>()) : 1;
-    const int unroll_size = std::min(vec_size, 4);
+    const int vec_factor = vectorize_ ? natural_vector_size(type_of<T>()) : 1;
+    const int unroll_factor = std::min(vec_factor, 4);
 
-    Var i("i"), j("j");
+    Var i("i");
+//    Var j("j");
     Func result("result");
 
-    const Expr size = A_.width();
-    const Expr sum_size = A_.height();
-    const Expr sum_size_cols = (sum_size / unroll_size) * unroll_size;
-    const Expr tail_size = sum_size - sum_size_cols;
+    const Expr input_size = in_size_;//A_.width(); // 0 dimension (input dim)
+    const Expr output_size = out_size_;//A_.height(); // 1 dimension (output dim)
 
-    RDom k(0, sum_size_cols, "k");
-    RDom tail(sum_size_cols, tail_size, "tail");
-    Func block("block");
-    block(i) = y_(i);
-    block(i) += A_(i, k) * x_(k);
-    block(i) += A_(i, tail) * x_(tail);
-    result(i) = block(i);
+    const Expr tail_size = out_size_ % (unroll_factor*vec_factor);
+    const Expr unrolled_size = out_size_ - tail_size;
 
-    RVar ki("ki");
-    Var ii("ii");
-    result.specialize(tail_size == 0)
-      .specialize(size >= vec_size)
-      .vectorize(i, vec_size)
-      .specialize(size >= unroll_size * vec_size)
-      .unroll(i, unroll_size)
-      .specialize(size >= block_size_)
-      .split(i, i, ii, block_size_ / (unroll_size * vec_size))
-      .parallel(i);
+    // input dim
+    RDom k(0, unrolled_size, "k");
+    RDom tail(unrolled_size, tail_size, "tail");
 
-    result.specialize(size >= vec_size)
-      .vectorize(i, vec_size)
-      .specialize(size >= unroll_size * vec_size)
-      .unroll(i, unroll_size)
-      .specialize(size >= block_size_)
-      .split(i, i, ii, block_size_ / (unroll_size * vec_size))
-      .parallel(i);
+    RDom j(0, in_size_, "j");
+//    Func block("block");
+    output_(i) = y_(i);
+    output_(i) += A_(j, i) * x_(j);
+//    output_(i) += A_(j, tail) * x_(j);
+    output_.vectorize(i, vec_factor).unroll(i, unroll_factor);
+//    block(i) += A_(tail, i) * x_(tail);
+//    result(i) = block(i);
 
-    block.compute_at(result, i);
-    block.specialize(size >= vec_size)
-      .vectorize(i, vec_size);
-    block.update()
-      .specialize(size >= vec_size && sum_size >= unroll_size)
-      .split(i, i, ii, vec_size)
-      .split(k, k, ki, unroll_size)
-      .reorder(ii, ki, i, k)
-      .vectorize(ii)
-      .unroll(ki);
-    block.update()
-      .specialize(size >= vec_size)
-      .vectorize(i, vec_size);
-    block.update(1)
-      .reorder(i, tail)
-      .specialize(size >= vec_size)
-      .vectorize(i, vec_size)
-      .specialize(sum_size >= unroll_size)
-      .unroll(i, unroll_size);
+//    RVar ki("ki");
+//    Var ii("ii");
+//    result.specialize(tail_size == 0)
+//      .specialize(size >= vec_size)
+//      .vectorize(i, vec_size)
+//      .specialize(size >= unroll_size * vec_size)
+//      .unroll(i, unroll_size)
+//      .specialize(size >= block_size_)
+//      .split(i, i, ii, block_size_ / (unroll_size * vec_size))
+//      .parallel(i);
+//
+//    result.specialize(size >= vec_size)
+//      .vectorize(i, vec_size)
+//      .specialize(size >= unroll_size * vec_size)
+//      .unroll(i, unroll_size)
+//      .specialize(size >= block_size_)
+//      .split(i, i, ii, block_size_ / (unroll_size * vec_size))
+//      .parallel(i);
+
+//    block.compute_at(result, i);
+//    block.specialize(size >= vec_size)
+//      .vectorize(i, vec_size);
+//    block.update()
+//      .specialize(size >= vec_size && sum_size >= unroll_size)
+//      .split(i, i, ii, vec_size)
+//      .split(k, k, ki, unroll_size)
+//      .reorder(ii, ki, i, k)
+//      .vectorize(ii)
+//      .unroll(ki);
+//    block.update()
+//      .specialize(size >= vec_size)
+//      .vectorize(i, vec_size);
+//    block.update(1)
+//      .reorder(i, tail)
+//      .specialize(size >= vec_size)
+//      .vectorize(i, vec_size)
+//      .specialize(sum_size >= unroll_size)
+//      .unroll(i, unroll_size);
 
     A_.dim(0).set_min(0).dim(1).set_min(0);
-    x_.dim(0).set_bounds(0, A_.height());
-    y_.dim(0).set_bounds(0, A_.width());
+    x_.dim(0).set_bounds(0, in_size_);
+    y_.dim(0).set_bounds(0, out_size_);
 
     // TODO: delete this pointless memcpy, as we probably have the tools to deal with this now.
     // see https://github.com/halide/Halide/commit/cf999bf71939261bdcbb92d87fc4d07db5770732
-    output_(i) = result(i);
-    result.compute_root();
+//    output_(i) = result(i);
+//    result.compute_root();
 //      output_.compute_root();
 
-    output_.specialize(size >= vec_size)
-      .vectorize(i, vec_size)
-      .specialize(size >= unroll_size * vec_size)
-      .unroll(i, unroll_size)
-      .specialize(size >= block_size_)
-      .split(i, i, ii, block_size_ / (unroll_size * vec_size))
-      .parallel(i);
+//    output_.specialize(size >= vec_size)
+//      .vectorize(i, vec_size)
+//      .specialize(size >= unroll_size * vec_size)
+//      .unroll(i, unroll_size)
+//      .specialize(size >= block_size_)
+//      .split(i, i, ii, block_size_ / (unroll_size * vec_size))
+//      .parallel(i);
   }
 };
 

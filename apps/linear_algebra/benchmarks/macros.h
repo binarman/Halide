@@ -108,7 +108,7 @@ inline void set_math_flags() {
     virtual void bench_fc_##out_size##x##in_size() override {    \
         Vector x(random_vector(in_size));               \
         Vector y(random_vector(out_size));              \
-        Matrix A(random_matrix(out_size, in_size));     \
+        Matrix A(random_matrix(in_size, out_size));     \
                                                         \
         time_it(benchmark##_##out_size##x##in_size(A.raw_buffer(), x.raw_buffer(), y.raw_buffer(), y.raw_buffer()))               \
                                                         \

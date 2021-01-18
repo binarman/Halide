@@ -339,7 +339,7 @@ set(SOURCE_FILES
     VectorizeLoops.cpp
     WasmExecutor.cpp
     WrapCalls.cpp
-    )
+        ../apps/linear_algebra/src/halide_correctness.cpp)
 
 ##
 # Build and import the runtime.
