@@ -166,8 +166,7 @@ set(HEADER_FILES
     VaryingAttributes.h
     VectorizeLoops.h
     WasmExecutor.h
-    WrapCalls.h
-    )
+    WrapCalls.h)
 
 set(SOURCE_FILES
     AddAtomicMutex.cpp
@@ -338,8 +337,7 @@ set(SOURCE_FILES
     VaryingAttributes.cpp
     VectorizeLoops.cpp
     WasmExecutor.cpp
-    WrapCalls.cpp
-        ../apps/linear_algebra/src/halide_correctness.cpp)
+    WrapCalls.cpp)
 
 ##
 # Build and import the runtime.
@@ -479,3 +477,9 @@ if (BUILD_SHARED_LIBS)
 else ()
     message(STATUS "Building autoschedulers disabled (static Halide)")
 endif ()
+
+add_executable(excrements experiments.cpp)
+target_include_directories(excrements PUBLIC ${Halide_BINARY_DIR}/include)
+target_include_directories(excrements PUBLIC /home/efimov/ops/codegen_experiments/halide/Halide/cmake-build-debug/include)
+target_link_libraries(excrements PUBLIC Halide)
+#message("DICK SHIT FUCK" ${Halide_BINARY_DIR}/include)
