@@ -482,4 +482,25 @@ add_executable(excrements experiments.cpp)
 target_include_directories(excrements PUBLIC ${Halide_BINARY_DIR}/include)
 target_include_directories(excrements PUBLIC /home/efimov/ops/codegen_experiments/halide/Halide/cmake-build-debug/include)
 target_link_libraries(excrements PUBLIC Halide)
-#message("DICK SHIT FUCK" ${Halide_BINARY_DIR}/include)
+
+set(GENERATOR_OUTPUT_FILES func.o func.h)
+
+add_custom_command(OUTPUT ${GENERATOR_OUTPUT_FILES}
+        COMMAND ./excrements
+        DEPENDS excrements
+        )
+
+list(TRANSFORM GENERATOR_OUTPUT_FILES PREPEND "${CMAKE_CURRENT_BINARY_DIR}/")
+add_custom_target(func.update ALL DEPENDS ${GENERATOR_OUTPUT_FILES})
+
+add_library(func STATIC ${GENERATOR_OUTPUT_FILES})
+set_target_properties(func PROPERTIES
+        POSITION_INDEPENDENT_CODE ON
+        LINKER_LANGUAGE CXX)
+
+add_dependencies(func func.update)
+
+target_include_directories(func INTERFACE "${CMAKE_CURRENT_BINARY_DIR}")
+
+add_executable(excrements_runner experiment_runner.cpp)
+target_link_libraries(excrements_runner PRIVATE Halide::Runtime func pthread dl)
