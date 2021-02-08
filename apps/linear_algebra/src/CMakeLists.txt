@@ -3,7 +3,8 @@ target_include_directories(halide_blas PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(halide_blas PUBLIC ${CMAKE_CURRENT_BUILD_DIR})
 
 # Define all our generators
-add_executable(blas.generator blas_l1_generators.cpp blas_l2_generators.cpp blas_l3_generators.cpp halide_gen_experiemnt.cpp)
+add_executable(blas.generator blas_l1_generators.cpp blas_l2_generators.cpp blas_l3_generators.cpp)
+#add_executable(blas.generator blas_l1_generators.cpp blas_l2_generators.cpp blas_l3_generators.cpp halide_gen_experiemnt.cpp)
 target_link_libraries(blas.generator PRIVATE Halide::Generator)
 
 # Function to reduce boilerplate
@@ -16,8 +17,8 @@ function(add_halide_blas_library)
                        GENERATOR ${args_NAME}
                        FEATURES no_bounds_query ${args_FEATURES}
                        PARAMS ${args_GENERATOR_ARGS}
-                       STMT_HTML ${args_TARGET}.html)
-#                       TARGETS arm-64-android)
+                       STMT_HTML ${args_TARGET}.html
+                       TARGETS arm-64-android)
     target_link_libraries(halide_blas PUBLIC ${args_TARGET})
 endfunction()
 
@@ -174,6 +175,6 @@ ADD_FC_LIBRARY(4000 4)
 #add_executable(halide_correctness halide_correctness.cpp)
 #target_link_libraries(halide_correctness PRIVATE halide_blas Halide::Tools)
 
-add_executable(halide_gen_experiment halide_gen_experiemnt.cpp)
-target_link_libraries(halide_gen_experiment PRIVATE Halide::Halide)
+#add_executable(halide_gen_experiment halide_gen_experiemnt.cpp)
+#target_link_libraries(halide_gen_experiment PRIVATE Halide::Halide)
 #target_include_directories(halide_gen_experiment PRIVATE "${Halide_SOURCE_DIR}/include")
